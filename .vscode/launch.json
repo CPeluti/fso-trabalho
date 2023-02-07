@@ -7,8 +7,8 @@
       "request": "launch",
       "program": "${fileDirname}/${fileBasenameNoExtension}",
       "args": [
-        "${workspaceFolder}/processes.txt",
-        "${workspaceFolder}/files.txt"
+        "${workspaceFolder}/combined.txt",
+        "${workspaceFolder}/combined_file.txt"
       ],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",

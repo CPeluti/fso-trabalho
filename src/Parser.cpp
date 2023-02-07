@@ -33,13 +33,16 @@ void Parser::ParseFilesFile (std::string filesFilename) {
     while (std::getline(file, line)) {
         std::vector<std::string> parsedFileLine = split(line, ", ");
         if (diskSegmentsFilled-- > 0)
-            parsedFileLines.push_back(parsedFileLine);                            
+            parsedFileLines.push_back(parsedFileLine);
+        else break;
     }
     // operacoes programadas do sistema de arquivos
-    while (std::getline(file, line)) {
+    do {
         std::vector<std::string> parsedOperationLine = split(line, ", ");
+        if (parsedOperationLine.size() < 4)
+            parsedOperationLine.push_back("-1");
         parsedOperationLines.push_back(parsedOperationLine);
-    }
+    } while (std::getline(file, line));
 
     diskBlocksCount = diskSize;
     filesDescriptor = parsedFileLines;

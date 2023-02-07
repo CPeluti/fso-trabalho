@@ -18,7 +18,7 @@ class MemoryManager {
     public:
         MemoryManager();
         ~MemoryManager();
-        void Allocate(Process* process);
+        int Allocate(Process* process);
         bool Deallocate(int pid);
         int GetSize();
         int GetRealTimeSize();

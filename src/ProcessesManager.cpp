@@ -1,25 +1,38 @@
 #include "ProcessesManager.h"
 
 // executa um processo da fila de processos e se precisar, realimenta a fila 
-Operation execProcess(std::vector<std::vector<Process>>* readyProcesses, int queue, IO io, FileSystem fs){
-    Process tempProcess = (*readyProcesses)[queue].front();
+Process execProcess(std::vector<std::vector<Process>>& readyProcesses, int queue, IO io, FileSystem& fs){
+    Process* tempProcess = &(readyProcesses[queue].front());
+    Process processCopy;
     Operation op;
-    if(tempProcess.getPriority()){
-        (*readyProcesses)[queue].erase((*readyProcesses)[queue].begin());
+    if(tempProcess->getPriority()){
+        processCopy = *tempProcess;
+        readyProcesses[queue].erase(readyProcesses[queue].begin());
         // se ainda falta executar, aumenta o tempo de exec e realimenta a fila zerando o wait
-        op = tempProcess.run(io,fs);
-        if(op.status == op.EXECUTING || op.status == op.WAITING){
-            (*readyProcesses)[tempProcess.getPriority()].push_back(tempProcess);
+        op = processCopy.run(io,fs);
+        if(op.status == op.EXECUTING || op.status == op.WAITING || processCopy.remainingOperations()){
+            readyProcesses[processCopy.getPriority()].push_back(processCopy);
         }
     } else {
-        op = tempProcess.run(io,fs);
+        op = tempProcess->run(io,fs);
+        processCopy = *tempProcess;
         if(op.status != op.EXECUTING && op.status != op.WAITING){
-            (*readyProcesses)[queue].erase((*readyProcesses)[queue].begin());
+            if(!tempProcess->remainingOperations() && (tempProcess->getRunningOp().status != op.WAITING && tempProcess->getRunningOp().status != op.EXECUTING)){
+                readyProcesses[queue].erase(readyProcesses[queue].begin());
+            }
         }
     }
-    return op;
+    return processCopy;
 }
-
+bool ProcessesManager::queuesAreEmpty(){
+    bool flag = true;
+    for(auto& v : this->readyProcesses){
+        if(v.size()){
+            flag = false;
+        }
+    }
+    return flag;
+}
 ProcessesManager::ProcessesManager(int max_wait){
     readyProcesses = std::vector<std::vector<Process>>(4);
     this->max_wait = max_wait;
@@ -34,22 +47,22 @@ bool ProcessesManager::insertProcess(Process process){
     }
 }
 // Escolhe um processo para realizar
-Operation ProcessesManager::cycleQueues(IO io, FileSystem fs){
+Process ProcessesManager::cycleQueues(IO io, FileSystem& fs){
     // Verifica fila de tempo real
+    this->updateWaits();
     if(this->readyProcesses[0].size()){
-        return execProcess(&(this->readyProcesses), 0, io, fs);
-    }else {
+        return execProcess(this->readyProcesses, 0, io, fs);
+    } else {
+        this->checkWait();
         for(int i = 1; i<this->readyProcesses.size(); i++){
             if(this->readyProcesses[i].size()){
-                return execProcess(&(this->readyProcesses), i, io, fs);
+                return execProcess(this->readyProcesses, i, io, fs);
             }
         }
     }
-    Operation op = Operation(-1,-1,-1,"",-1);
-    op.status = op.NONE;
-    return op;
+    return Process();
 }
-Operation ProcessesManager::run(IO io, FileSystem fs){
+Process ProcessesManager::run(IO io, FileSystem& fs){
     return this->cycleQueues(io, fs);
 }
 void ProcessesManager::updateWaits(){

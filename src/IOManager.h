@@ -4,29 +4,25 @@
 class IO {
     public:
         IO();
-        void useScanner(int pid);
-        void usePrinter(int pid,int id);
-        void useModem(int pid);
-        void useSATA(int pid,int id);
-        void freeScanner();
-        void freePrinter(int id);
-        void freeModem();
-        void freeSATA(int id);
-        bool checkUsingScanner(int pid);
-        bool checkUsingPrinter(int pid,int id);
-        bool checkUsingModem(int pid);
-        bool checkUsingSATA(int pid,int id);
+        bool useScanner(int pid);
+        bool usePrinter(int pid,int id);
+        bool useModem(int pid);
+        bool useSATA(int pid,int id);
+        void freeScanner(int pid);
+        void freePrinter(int pid,int id);
+        void freeModem(int pid);
+        void freeSATA(int pid,int id);
 
     private:
+        std::queue<int> printq1;
+        std::queue<int> printq2;
+        std::queue<int> scannerq;
+        std::queue<int> sataq1;
+        std::queue<int> sataq2;
+        std::queue<int> modemq;
         std::vector<int> printers;
         std::vector<int> SATAs;
         int modemPID;
         int scannerPID;
-        sem_t printer1;
-        sem_t SATA1;
-        sem_t modem;
-        sem_t scanner;
-        sem_t printer2;
-        sem_t SATA2;
 };
 #endif

@@ -1,5 +1,6 @@
-.vscode/
+.vscode
 *.code-workspace
 *.d
 *.o
 *.exe
+spike/

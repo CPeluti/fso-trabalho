@@ -3,7 +3,8 @@
 
 #include "cpplibraries.h"
 #include "IOManager.h"
-#include "filesystem.h"
+#include "FileSystem.h"
+#include "Operation.h"
 
 class Process {
     public:
@@ -18,6 +19,8 @@ class Process {
             int modem_req,
             int disk_num
         );
+        int remainingOperations();
+        Operation getRunningOp();
         int getRemainingTime();
         int getPid();
         int getInitTime();
@@ -30,12 +33,14 @@ class Process {
         int getModemReq();
         int getDiskNum();
         int getWait();
-        bool getIO(IO io);
-        bool freeIO(IO io);
-        Operation run(IO io, FileSystem fs);
+        bool getIO(IO& io);
+        void freeIO(IO& io);
+        Operation run(IO io, FileSystem& fs);
         void incrementWait();
         void updateWait(int new_wait);
         void setPriority(int new_priority);
+        void insertOperation(Operation operation);
+        bool isFinished();
     private:
         void resetRunTime();
         void updateRunTime(int executed_time);

@@ -7,6 +7,8 @@
 #include "Dispatcher.h"
 #include "MemoryManager.h"
 #include "ProcessesManager.h"
+#include "FileSystem.h"
+#include "IOManager.h"
 #include "Process.h"
 #include "Operation.h"
 
